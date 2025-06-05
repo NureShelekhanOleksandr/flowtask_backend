@@ -1,7 +1,22 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    DateTime,
+    ForeignKey,
+    Text,
+    CheckConstraint,
+)
 from sqlalchemy.orm import relationship
 from datetime import datetime
+import enum
 from .database import Base
+
+
+class TaskStatus(str, enum.Enum):
+    TODO = "To do"
+    IN_PROGRESS = "In progress"
+    DONE = "Done"
 
 
 class User(Base):
@@ -30,9 +45,15 @@ class Task(Base):
     status = Column(String(50), nullable=False)
     deadline = Column(DateTime)
     assigned_user_id = Column(Integer, ForeignKey("users.id"))
-    created_by_id = Column(Integer, ForeignKey("users.id"))
+    created_by_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     attachment_url = Column(String(500))
+
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('To do', 'In progress', 'Done')", name="check_status_values"
+        ),
+    )
 
     assignee = relationship(
         "User", foreign_keys=[assigned_user_id], back_populates="tasks_assigned"

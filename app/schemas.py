@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional, List
 from datetime import datetime
+from .models import TaskStatus
 
 
 class UserBase(BaseModel):
@@ -23,7 +24,7 @@ class UserOut(UserBase):
 class TaskBase(BaseModel):
     title: str
     description: Optional[str] = None
-    status: str
+    status: TaskStatus
     deadline: Optional[datetime] = None
     assigned_user_id: Optional[int] = None
     attachment_url: Optional[str] = None
@@ -35,7 +36,7 @@ class TaskCreate(TaskBase):
 
 class TaskOut(TaskBase):
     id: int
-    created_by_id: int
+    created_by_id: Optional[int] = None
     created_at: datetime
 
     class Config:

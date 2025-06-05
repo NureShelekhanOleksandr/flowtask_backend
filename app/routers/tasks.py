@@ -9,7 +9,11 @@ router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
 @router.post("/", response_model=schemas.TaskOut, status_code=status.HTTP_201_CREATED)
 def create_task(task: schemas.TaskCreate, db: Session = Depends(database.get_db)):
-    db_task = models.Task(**task.dict())
+    task_data = task.dict()
+    # Convert status enum to string value
+    if isinstance(task_data["status"], models.TaskStatus):
+        task_data["status"] = task_data["status"].value
+    db_task = models.Task(**task_data)
     db.add(db_task)
     db.commit()
     db.refresh(db_task)
